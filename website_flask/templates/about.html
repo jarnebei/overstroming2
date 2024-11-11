@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>Vlaanderen Overstromingsrisico/about</title>
+</head>
+<body>
+    <nav class="NavigationBar">
+        <a class="navbar-brand" href="{{ url_for('home') }}">
+            <img src="{{ url_for('static', filename='afbeeldingen/wave.png') }}" alt="Logo">
+        </a>
+        <div class="paginas">
+            <a class="pagina" href="{{ url_for('home') }}">Home</a>
+            <a class="pagina" href="{{ url_for('maatregelingen') }}"> Wat doen? </a>
+            <a class="active" class="pagina" href="{{ url_for('about') }}">About</a>
+        </div>
+    </nav>
+    <div class="inhoud">
+        <h1> Welkom bij DROP – Datagebaseerde Regenval en Overstromings Predictie</h1>
+        <p> 
+            In Vlaanderen, waar de invloed van extreme weersomstandigheden steeds groter wordt, 
+            is het cruciaal om voorbereid te zijn op de risico's van overstromingen. DROP biedt een 
+            innovatieve oplossing door gebruik te maken van geavanceerde datagestuurde modellen om regenval 
+            en de daaruit voortvloeiende overstromingen nauwkeurig te voorspellen. </p><br>  <p> Met een combinatie van 
+            historische gegevens, real-time weersinformatie en geavanceerde analysetechnieken, helpt DROP 
+            gemeenschappen en beleidsmakers bij het begrijpen van de mogelijke impact van zware regenval. 
+            Dit project streeft ernaar de veerkracht van onze regio te versterken door tijdige en
+            nauwkeurige informatie te bieden, zodat er effectieve maatregelen kunnen worden genomen 
+            om schade te minimaliseren en de veiligheid van onze inwoners te waarborgen. </p>
+            <br>
+            <p>Samen kunnen we werken aan een beter voorbereid Vlaanderen, waar we ons proactief aanpassen aan de uitdagingen van ons veranderend klimaat. </p>
+            
+    </div>
+</body>
+</html>

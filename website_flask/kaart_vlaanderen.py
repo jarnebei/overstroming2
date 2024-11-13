@@ -22,7 +22,7 @@ from folium.plugins import HeatMapWithTime, HeatMap
 import os
 import pysteps
 from datetime import datetime
-from website_flask.HDF_lezer import data_lezer
+from HDF_lezer import data_lezer
 
 rand = [[51.800, 1.13000], [50.244, 7.250]] #deze buiten functie want ook nodig voor heatmap
 def init_map(vlaanderen_gemeenten):

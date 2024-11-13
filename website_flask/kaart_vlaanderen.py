@@ -1,12 +1,15 @@
-import folium
-import geopandas as gpd
-import os
 
-vlaanderen_arrondisementen_path = r"C:\Users\annab\Documents\P&O 3\vlaanderen_arrondisement\Refarr25G10.shp"
-vlaanderen_gemeenten_path = r"C:\Users\annab\Documents\P&O 3\vlaanderen_gemeentes\Refgem25G100.shp"
-gemeenten_riscios_path = r"C:\Users\annab\Documents\P&O 3\gemeenten_risicos.csv"
-arrondisement_risicos_path = r"C:\Users\annab\Documents\P&O 3\arrondisement_risicos_test2.csv"
-kaart_html_path = r'C:\Users\annab\Documents\P&O 3\website_flask\static/kaarten/kaart_vlaanderen.html'
+paths_geo = [r"C:\Users\annab\Documents\P&O 3", r"C:\Users\jarne\Desktop\KUL 2Bir - Semester 3\P&O3"]
+paths_web = [r"C:\Users\annab\Documents\P&O 3", r"C:\Users\jarne\PycharmProjects\KUL Bir - 2e semester\P&O3" ]
+i = 1
+# 0 = Annabel
+# 1 = Jarne
+
+vlaanderen_arrondisementen_path = paths_geo[i] + r"\vlaanderen_arrondisement\Refarr25G10.shp"
+vlaanderen_gemeenten_path = paths_geo[i] + r"\vlaanderen_gemeentes\Refgem25G100.shp"
+gemeenten_riscios_path = paths_geo[i] + r"\gemeenten_risicos.csv"
+arrondisement_risicos_path = paths_geo[i] + r"\arrondisement_risicos_test2.csv"
+kaart_html_path = paths_web[i] + r"\website_flask\static/kaarten/kaart_vlaanderen.html"
 
 
 # Pad naar de kaart
@@ -19,6 +22,7 @@ from folium.plugins import HeatMapWithTime, HeatMap
 import os
 import pysteps
 from datetime import datetime
+from HDF_lezer import data_lezer
 
 rand = [[51.800, 1.13000], [50.244, 7.250]] #deze buiten functie want ook nodig voor heatmap
 def init_map(vlaanderen_gemeenten):
@@ -128,7 +132,7 @@ def data_extracting_rainfall(data_path):
 
 def add_rainfall_layer_h(m,data_path): 
     print("Extracting data from HDF-file")
-    precipitation = data_extracting_rainfall(data_path)
+    precipitation = data_lezer(data_path,False)
     print("Data extracted")
     print("Creating default map and coordinates")
     # Initialiseer de basiskaart
@@ -155,7 +159,6 @@ def add_rainfall_layer_h(m,data_path):
                 if intensity != 0.0 and rand[1][0] < lat < rand[0][0] and rand[0][1]< lon < rand[1][1]: #overmatige gegevens wissen
                     timestep_data.append([lat, lon, intensity])
         data.append(timestep_data)
-    data_vast = np.sum(precipitation,axis=0)
     print("Data converted")
     # Genereer de tijdindex voor de heatmap
     time_index = [f"{data_path[66:74]} 2022 van {k}:00 tot {k + 1}:00 uur." for k in range(a)]
@@ -168,9 +171,7 @@ def add_rainfall_layer_h(m,data_path):
 
 def add_rainfall_layer_d(m,data_path):
     print("Extracting data from HDF-file")
-    precipitation = data_extracting_rainfall(data_path)
-    regen_data = np.sum(precipitation,axis=0)
-    regen_data = np.nan_to_num(regen_data,nan=0.0)
+    regen_data = data_lezer(data_path,True)
     print("Data extracted")
     print("Making default map and coordinates")
     # Initialiseer de basiskaart

@@ -1,26 +1,33 @@
 from flask import Flask, render_template, request, jsonify
 import geopandas as gpd
-import pandas as pd
 import folium
 import os
-import json
 import kaart_vlaanderen
 import risicos_berekenen
 import shutil
 # HANDIGE SITES
     # voor folium: https://python-visualization.github.io/folium/latest/index.html
 
+#PAS HIER PATH AAN
+paths_geo = [r"C:\Users\annab\Documents\P&O 3", r"C:\Users\jarne\Desktop\KUL 2Bir - Semester 3\P&O3"]
+paths_web = [r"C:\Users\annab\Documents\P&O 3", r"C:\Users\jarne\PycharmProjects\KUL Bir - 2e semester\P&O3" ]
+i = 1
+# 0 = Annabel
+# 1 = Jarne
 
 # om Flask webapplicatie te initaliseren: moet hier ALTIJD staan    
 app = Flask(__name__)
 
 # Bestanden pad initialiseren
-vlaanderen_arrondisementen_path = r"C:\Users\annab\Documents\P&O 3\vlaanderen_arrondisement\Refarr25G10.shp"
-vlaanderen_gemeenten_path = r"C:\Users\annab\Documents\P&O 3\vlaanderen_gemeentes\Refgem25G100.shp"
-gemeenten_riscios_path = r"C:\Users\annab\Documents\P&O 3\gemeenten_risicos.csv"
-arrondisement_risicos_path = r"C:\Users\annab\Documents\P&O 3\arrondisement_risicos_test2.csv"
-kaart_html_path = r'C:\Users\annab\Documents\P&O 3\website_flask\static/kaarten/kaart_vlaanderen.html'
-
+vlaanderen_arrondisementen_path = paths_geo[i] + r"\vlaanderen_arrondisement\Refarr25G10.shp"
+vlaanderen_gemeenten_path = paths_geo[i] + r"\vlaanderen_gemeentes\Refgem25G100.shp"
+gemeenten_riscios_path = paths_geo[i] + r"\gemeenten_risicos.csv"
+arrondisement_risicos_path = paths_geo[i] + r"\arrondisement_risicos_test2.csv"
+kaart_html_path = paths_web[i] + r"\website_flask\static/kaarten/kaart_vlaanderen.html"
+upload_folder = paths_web[i] +r'\website_flask\upload_regen'
+datums_neerslag = [paths_web[i] + r'\website_flask\HDF_DAGEN\hdf - 15jul',
+                       paths_web[i] + r'\website_flask\HDF_DAGEN\hdf - 26aug',
+                       paths_web[i] + r'\website_flask\HDF_DAGEN\hdf - 28aug'] #data en gegevens-paths voor de 3 neerslagen
  #_______________________________________________________________HOME__________________________________________________________________________________________________
 @app.route('/', methods=['GET', 'POST'])
 def home():
@@ -64,11 +71,11 @@ def home():
         # Controleer of er bestanden zijn geüpload
         if 'rainfile' in request.files:
             files = request.files.getlist('rainfile')  # Haal alle bestanden op als lijst
-            
+            ##BESTANDEN UPLOADEN
             # Print de lengte van de bestandenlijst voor debugging
             print(f"Aantal geüploade bestanden: {len(files)}")
 
-            upload_folder = r'C:\Users\annab\Documents\P&O 3\website_flask\upload_regen'
+
             if os.path.exists(upload_folder):
                 shutil.rmtree(upload_folder)
 
@@ -81,12 +88,30 @@ def home():
                     file.save(filepath)
                     print(f"Bestand opgeslagen: {filepath}")
 
-            return "Bestanden succesvol geüpload en opgeslagen.", 200
+            ##KAARTJE MAKEN
+            inhoud_upload_regen = os.listdir(upload_folder)
+            uploaded_data = upload_folder + "/" + inhoud_upload_regen[0]  #voor nu pakken we gwn de eerste in de lijst?
+            datums_neerslag.append(uploaded_data)
+            """
+            gemeenten_risicos = risicos_berekenen.risico(vlaanderen_gemeenten, uploaded_data)
+            m = kaart_vlaanderen.init_map(vlaanderen_gemeenten)
+            m = kaart_vlaanderen.add_rainfall_layer_h(m, uploaded_data)  # KAN NIET IN EEN FEATURE GROEP WANT DAN WERKT HET NIET, naamgeving in de heatmap functie zelf (kaart_vlaanderen)
+            gemeenten_groep2 = folium.FeatureGroup(name="Gemeenten", overlay=True, control=True, show=True)
+            gemeenten_groep2 = kaart_vlaanderen.add_gemeenten_layer(gemeenten_groep2, vlaanderen_gemeenten, 0.3,
+                                                                    gemeenten_risicos)  # vervaging nodig om wolkjes te zien
+            gemeenten_groep2.add_to(m)
+            regen_groep = kaart_vlaanderen.add_rainfall_layer_d(regen_groep, uploaded_data)  # dagelijkse neerslag
+            regen_groep.add_to(m)
+
+            folium.LayerControl().add_to(
+                m)  # hiermee kan je verschillende lagen aan en uitzetten (show=F/T om ze op het begin uit of aan te zetten)
+            m.save(kaart_html_path)
+            iframe_html = f'<iframe src="/static/kaarten/kaart_vlaanderen.html" width="100%" height="100%"></iframe >'
+            print('iframe gemaakt')
+            return iframe_html  # Stuur de iframe HTML terug voor de kaart
+"""
 
 
-    datums_neerslag = [r'C:\Users\annab\Documents\P&O 3\website_flask\HDF_DAGEN\hdf - 15jul',
-                       r'C:\Users\annab\Documents\P&O 3\website_flask\HDF_DAGEN\hdf - 26aug',
-                       r'C:\Users\annab\Documents\P&O 3\website_flask\HDF_DAGEN\hdf - 28aug'] #data en gegevens-paths voor de 3 neerslagen
     if action == 'rainfall1':
             gemeenten_risicos = risicos_berekenen.risico(vlaanderen_gemeenten,datums_neerslag[0])
             m = kaart_vlaanderen.init_map(vlaanderen_gemeenten)
@@ -112,21 +137,18 @@ def home():
             regen_groep = kaart_vlaanderen.add_rainfall_layer_d(regen_groep,datums_neerslag[1])
             regen_groep.add_to(m)
             gemeenten_groep2.add_to(m)
-            #gemeenten_groep = folium.FeatureGroup(name="Gemeenten",overlay=True,control=True,show=False)
-            #gemeenten_groep = kaart_vlaanderen.add_gemeenten_layer(gemeenten_groep, vlaanderen_gemeenten)
-            #gemeenten_groep.add_to(m)
             folium.LayerControl().add_to(m)
             m.save(kaart_html_path)
             iframe_html = f'<iframe src="/static/kaarten/kaart_vlaanderen.html" width="100%" height="100%"></iframe >'
             print('inframe gemaakt')
             return iframe_html  # Stuur de iframe HTML terug voor de kaart
     elif action == 'rainfall3':
-            gemeenten_risicos = risicos_berekenen.risico(vlaanderen_gemeenten,datums_neerslag[2])
+            gemeenten_risicos = risicos_berekenen.risico(vlaanderen_gemeenten,datums_neerslag[3])
             m = kaart_vlaanderen.init_map(vlaanderen_gemeenten)
-            m = kaart_vlaanderen.add_rainfall_layer_h(m, datums_neerslag[2])  # KAN NIET IN EEN FEATURE GROEP WANT DAN WERKT HET NIET
+            m = kaart_vlaanderen.add_rainfall_layer_h(m, datums_neerslag[3])  # KAN NIET IN EEN FEATURE GROEP WANT DAN WERKT HET NIET
             gemeenten_groep2 = folium.FeatureGroup(name="Gemeenten", overlay=True, control=True, show=True)
             gemeenten_groep2 = kaart_vlaanderen.add_gemeenten_layer(gemeenten_groep2, vlaanderen_gemeenten,0.3, gemeenten_risicos)  # vervaging nodig om wolkjes te zien
-            regen_groep = kaart_vlaanderen.add_rainfall_layer_d(regen_groep, datums_neerslag[2])
+            regen_groep = kaart_vlaanderen.add_rainfall_layer_d(regen_groep, datums_neerslag[3])
             regen_groep.add_to(m)
             gemeenten_groep2.add_to(m)
             folium.LayerControl().add_to(m)

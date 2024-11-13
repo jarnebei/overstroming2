@@ -1,4 +1,4 @@
-import website_flask.HDF_lezer as HDF_lezer
+import HDF_lezer as HDF_lezer
 import csv
 import json
 paths_geo = [r"C:\Users\annab\Documents\P&O 3", r"C:\Users\jarne\Desktop\KUL 2Bir - Semester 3\P&O3"]
@@ -14,7 +14,7 @@ path = paths_web[i] + r'\website_flask\HDF_DAGEN\hdf - 15jul'
 precip_dag = HDF_lezer.data_lezer(path,True)
 ###bestand indices openen
 # Bestandspad naar het CSV-bestand
-csv_bestandsnaam = "gemeenten_met_indices.csv"
+csv_bestandsnaam = "regenvoorspelling_per_gemeente\gemeenten_met_indices.csv"
 
 # Initialiseer een lege dictionary om de gegevens op te slaan
 gemeenten_data = {}
@@ -30,7 +30,6 @@ with open(csv_bestandsnaam, mode="r") as csv_file:
         # Sla de gegevens op in de dictionary
         gemeenten_data[gemeente_naam] = coordinaten
 
-print(gemeenten_data)
 ###regenverzameling
 regen_per_gemeente = {}
 for gemeente, indices in sorted(gemeenten_data.items()):
@@ -45,5 +44,5 @@ for gemeente, indices in sorted(gemeenten_data.items()):
 
 
 print(regen_per_gemeente)
-print(regen_per_gemeente["Hasselt"])
-print(regen_per_gemeente["Antwerpen"])
+print("Hasselt", regen_per_gemeente["Hasselt"])
+print("Antwerpen", regen_per_gemeente["Antwerpen"])

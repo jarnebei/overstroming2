@@ -1,4 +1,4 @@
-import HDF_lezer
+import website_flask.HDF_lezer as HDF_lezer
 import csv
 import json
 paths_geo = [r"C:\Users\annab\Documents\P&O 3", r"C:\Users\jarne\Desktop\KUL 2Bir - Semester 3\P&O3"]
